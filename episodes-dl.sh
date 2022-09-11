@@ -5,7 +5,7 @@ prog_name=${0##*/}
 ERR_NO_CSV_FILE=100
 ERR_ARG=200
 
-YOUTUBE_DL_EXEC=${YOUTUBE_DL_EXEC:-yt-dl}
+YOUTUBE_DL_EXEC=${YOUTUBE_DL_EXEC:-youtube-dl}
 csv_file=episodes.csv
 remaining=9999
 
@@ -81,6 +81,11 @@ strip_header () {
 	tail +2 "$fname"
 }
 
+remove_empty_lines() {
+	local fname=${1:--}
+	sed '/^$/d' "$fname"
+}
+
 while IFS=, read url basename;
 do
 	[[ $remaining -eq 0 ]] && break
@@ -92,4 +97,4 @@ do
 	fi
 	"$YOUTUBE_DL_EXEC" -o "$basename.%(ext)s" $url
 	let remaining--
-done < <(strip_header "$csv_file")
+done < <(strip_header "$csv_file" | remove_empty_lines)
